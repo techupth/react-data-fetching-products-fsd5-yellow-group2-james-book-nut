@@ -1,29 +1,43 @@
+import { useEffect, useState } from "react";
+import Product from "./components/Product"
+import axios from 'axios';
 import "./App.css";
+const host = "http://localhost:4001";
 
 function App() {
+  const [productsDetail, setProductsDetail] = useState([]);
+
+  function fetchProductsDetail() {
+    const data = axios.get(host + "/products").then(
+      res => {
+        setProductsDetail(res.data.data)
+      }
+    )
+  }
+
+  useEffect(fetchProductsDetail, [])
+
+  function deleteProduct(id) {
+    axios.delete(host + `/products/${id}`).then(
+      fetchProductsDetail()
+    )
+    
+    return;
+  }
+
+  const productsList = productsDetail.map(product => {
+    return (
+      <Product data={product} deleteProduct={deleteProduct}/>
+    )
+  })
+
   return (
     <div className="App">
       <div className="app-wrapper">
         <h1 className="app-title">Products</h1>
       </div>
       <div className="product-list">
-        <div className="product">
-          <div className="product-preview">
-            <img
-              src="https://via.placeholder.com/350/350"
-              alt="some product"
-              width="350"
-              height="350"
-            />
-          </div>
-          <div className="product-detail">
-            <h1>Product name: ...</h1>
-            <h2>Product price: ... Baht</h2>
-            <p>Product description: .....</p>
-          </div>
-
-          <button className="delete-button">x</button>
-        </div>
+        {productsList}
       </div>
     </div>
   );
